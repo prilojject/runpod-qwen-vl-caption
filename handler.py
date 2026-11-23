@@ -35,6 +35,10 @@ log = logging.getLogger("qwen-vl-worker")
 def _progress_fn(job: dict):
     def send(payload: dict) -> None:
         log.info("progress: %s", payload)
+        # After captioning, only log. A blocking progress_update here can
+        # leave the job stuck at the last stage if the worker then exits.
+        if payload.get("stage") in {"uploading", "done"}:
+            return
         if job.get("id") and not str(job["id"]).startswith("local") and os.environ.get("RUNPOD_POD_ID"):
             try:
                 import runpod
@@ -49,7 +53,8 @@ def handler(job: dict) -> dict[str, Any]:
     # Keep the ~8.3 GiB 4B model in worker memory across jobs. Do not copy
     # refresh_worker=true from the trainer listings.
     result["refresh_worker"] = False
-    return result
+    import json as _json
+    return _json.loads(_json.dumps(result, default=str))
 
 
 def _handle(job: dict) -> dict[str, Any]:
@@ -169,9 +174,14 @@ def _handle(job: dict) -> dict[str, Any]:
     zip_captions(dest_images, copied_paths, zip_path, json_path)
 
     progress({"stage": "uploading"})
-    artifacts, warns = deliver(cfg, run_name, run_dir, zip_path, json_path, token, persistent)
-    result["warnings"] += warns
-    result["artifacts"] = artifacts
+    try:
+        artifacts, warns = deliver(cfg, run_name, run_dir, zip_path, json_path, token, persistent)
+        result["warnings"] += warns
+        result["artifacts"] = artifacts
+    except Exception as exc:
+        log.error("delivery failed: %s", redact(traceback.format_exc()))
+        result["warnings"].append(f"delivery failed: {redact(str(exc)).splitlines()[0][:300]}")
+        result["artifacts"] = {"zip_path": zip_path, "captions_json_path": json_path}
     if cfg.return_captions_in_response:
         result["captions"] = captions
     failed = int((result.get("captioning") or {}).get("failed") or 0)
@@ -182,7 +192,9 @@ def _handle(job: dict) -> dict[str, Any]:
     if failed and "error" not in result:
         result["error"] = f"captioning failed for {failed} image(s)"
     shutil.rmtree(work, ignore_errors=True)
-    return result
+    # Guarantees the Serverless runtime can JSON-encode the payload.
+    import json as _json
+    return _json.loads(_json.dumps(result, default=str))
 
 
 if __name__ == "__main__":
