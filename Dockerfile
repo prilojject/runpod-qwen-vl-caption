@@ -66,7 +66,7 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN python -m pip install -r /app/requirements.txt -c /tmp/constraints.txt \
     && python -m pip freeze > /app/requirements.lock \
-    && python -c "import sys,torch,transformers,accelerate,PIL,runpod,qwen_vl_utils; print('torch', torch.__version__, '| cuda', torch.version.cuda, '| transformers', transformers.__version__, '| python', sys.version.split()[0], '| runpod', runpod.__version__, '| qwen-vl-utils', qwen_vl_utils.__version__, '| qwen3-vl sha', open('/opt/qwen3-vl.commit').read().strip())"
+    && python -c "import importlib.metadata as m,sys,torch,transformers,accelerate,PIL,runpod,qwen_vl_utils; print('torch', torch.__version__, '| cuda', torch.version.cuda, '| transformers', transformers.__version__, '| python', sys.version.split()[0], '| runpod', runpod.__version__, '| qwen-vl-utils', m.version('qwen-vl-utils'), '| qwen3-vl sha', open('/opt/qwen3-vl.commit').read().strip())"
 
 COPY handler.py /app/handler.py
 COPY src /app/src
