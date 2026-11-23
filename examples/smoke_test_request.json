@@ -1,0 +1,12 @@
+{
+  "input": {
+    "model_id": "Qwen/Qwen3-VL-4B-Instruct",
+    "dataset_url": "https://raw.githubusercontent.com/prilojject/runpod-qwen-vl-caption/main/examples/datasets/tiny_images.zip",
+    "mode": "caption",
+    "length": "medium",
+    "language": "en",
+    "greedy": true,
+    "max_new_tokens": 128,
+    "run_name": "hub-test-qwen-vl"
+  }
+}

@@ -1,0 +1,8 @@
+# Worker deps on top of the CUDA / transformers install in the Dockerfile.
+# torch / torchvision / torchaudio / triton come from the CUDA 12.8 install and are frozen as pip constraints.
+runpod==2.4.0
+boto3==1.44.9
+hf_transfer==0.1.9
+huggingface_hub>=0.26.0
+requests>=2.31
+qwen-vl-utils==0.0.14

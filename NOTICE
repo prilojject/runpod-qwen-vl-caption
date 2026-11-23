@@ -1,0 +1,33 @@
+This worker (prilojject/runpod-qwen-vl-caption) is licensed under the MIT License.
+That license covers the worker code in this repository. It does **not** replace
+the license of upstream Qwen3-VL code or weights.
+
+Upstream code
+-------------
+Inference follows the official Quickstart in QwenLM/Qwen3-VL
+(Apache License 2.0, © Alibaba Cloud / the Qwen team), pinned to SHA
+96588727e44c78b25ba03ea03b8e12f7e64fd0da:
+https://github.com/QwenLM/Qwen3-VL
+
+The official upstream LICENSE is copied at LICENSE.upstream. The worker
+depends on the released PyPI package qwen-vl-utils==0.0.14 (also Apache-2.0)
+but uses AutoProcessor with the official pixel budget for preprocessing, so
+the two resize paths are never mixed in one run.
+
+Weights
+-------
+Default weights are downloaded at runtime from the public Hugging Face catalog
+Qwen/Qwen3-VL-4B-Instruct (revision ebb281ec70b05090aa6165b016eac8ec08e71b17).
+The Hugging Face model card marks them `license: apache-2.0` and `gated: false`.
+The weight repositories do not ship a LICENSE file; this NOTICE and the README
+record Apache-2.0 and attribute Qwen / Alibaba Cloud. Optional 2B and 8B
+Instruct checkpoints use the same license. Weights are **not** baked into the
+image.
+
+Do not substitute Qwen2.5-VL-3B (Qwen Research License, non-commercial) or
+other Qwen2.5-VL sizes. This listing is Qwen3-VL only.
+
+Example images
+--------------
+examples/datasets/tiny_images.zip contains three small public-domain NASA
+photographs. Sources and licenses are documented in examples/SOURCES.md.

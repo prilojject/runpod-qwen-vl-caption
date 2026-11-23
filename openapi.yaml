@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: Qwen-VL Batch Captioner
+  version: 1.0.0
+  description: >
+    Runpod Serverless job schema for official Qwen3-VL-4B-Instruct batch captioning
+    (optional short VQA). The worker code is MIT; Qwen3-VL code and Instruct
+    weights are Apache-2.0.
+  license:
+    name: MIT (worker code); Apache-2.0 (Qwen3-VL code and Instruct weights)
+servers:
+  - url: https://api.runpod.ai/v2/{endpoint_id}
+    variables:
+      endpoint_id:
+        default: YOUR_ENDPOINT
+paths:
+  /run:
+    post:
+      summary: Queue a caption job
+      operationId: runCaption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobEnvelope'
+      responses:
+        '200':
+          description: Job accepted
+components:
+  schemas:
+    JobEnvelope:
+      type: object
+      required: [input]
+      properties:
+        input:
+          $ref: '#/components/schemas/CaptionInput'
+    CaptionInput:
+      type: object
+      description: Provide image_url and/or dataset_url. Do not send tokens here.
+      properties:
+        image_url:
+          type: string
+          format: uri
+        dataset_url:
+          type: string
+          format: uri
+        model_id:
+          type: string
+          default: Qwen/Qwen3-VL-4B-Instruct
+        model_revision:
+          type: string
+        mode:
+          type: string
+          enum: [caption, vqa]
+          default: caption
+        length:
+          type: string
+          enum: [short, medium, long]
+          default: medium
+        language:
+          type: string
+          default: en
+        prompt:
+          type: string
+          description: Overrides caption templates. Ignored in vqa mode.
+        question:
+          type: string
+          description: Required for mode=vqa. A single question, not a chat history.
+        max_new_tokens:
+          type: integer
+          default: 256
+        greedy:
+          type: boolean
+          default: false
+        temperature:
+          type: number
+          default: 0.7
+        top_p:
+          type: number
+          default: 0.8
+        top_k:
+          type: integer
+          default: 20
+        max_pixels:
+          type: integer
+          default: 1310720
+          description: Official longest_edge = 1280*32*32. Do not use 16777216.
+        min_pixels:
+          type: integer
+          default: 262144
+        batch_size:
+          type: integer
+          default: 1
+        overwrite:
+          type: boolean
+          default: false
+        prepend:
+          type: string
+        append:
+          type: string
+        hf_repo_id:
+          type: string
+        upload_url:
+          type: string
+          format: uri
+        return_captions_in_response:
+          type: boolean
+          default: true
+        run_name:
+          type: string
+        seed:
+          type: integer
+          default: 1234
+        dry_run:
+          type: boolean
+          default: false
+    CaptionOutput:
+      type: object
+      properties:
+        status:
+          type: string
+        worker_version:
+          type: string
+        gpu:
+          type: object
+        config:
+          type: object
+        dataset:
+          type: object
+        captions:
+          type: array
+          items:
+            type: object
+            properties:
+              file:
+                type: string
+              caption:
+                type: string
+        artifacts:
+          type: object
+        warnings:
+          type: array
+          items:
+            type: string
+        elapsed_seconds:
+          type: number
+        refresh_worker:
+          type: boolean
+          description: Always false so the model stays in memory.

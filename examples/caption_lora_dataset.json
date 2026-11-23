@@ -1,0 +1,10 @@
+{
+  "input": {
+    "dataset_url": "https://example.com/images.zip",
+    "mode": "caption",
+    "length": "medium",
+    "language": "en",
+    "max_new_tokens": 256,
+    "hf_repo_id": "you/my-lora-captions"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "input": {
+    "dataset_url": "https://raw.githubusercontent.com/prilojject/runpod-qwen-vl-caption/main/examples/datasets/tiny_images.zip",
+    "mode": "caption",
+    "length": "medium",
+    "language": "en",
+    "dry_run": true,
+    "run_name": "dry-run"
+  }
+}

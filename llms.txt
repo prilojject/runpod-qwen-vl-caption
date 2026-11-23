@@ -1,0 +1,29 @@
+# prilojject/runpod-qwen-vl-caption
+
+> Runpod Serverless worker that batch-captions images for LoRA / diffusion datasets with official Qwen3-VL-4B-Instruct (bf16, ~8.27 GiB weights, default GPU RTX 4090 24 GB). Input: image_url and/or a zip of images. Output: kohya-style sidecar .txt next to each image plus captions.json. Optional short VQA (one question → one answer). Headless Transformers + official chat template. Gradio is never started. This is not runpod-joycaption, not a general vLLM chat endpoint, and not runpod-image-lora-trainer.
+
+Qwen3-VL code and the 2B/4B/8B Instruct weights are Apache-2.0 (© Alibaba Cloud / the Qwen team). The worker code is MIT. Upstream code is pinned to SHA 96588727e44c78b25ba03ea03b8e12f7e64fd0da. Weights: Qwen/Qwen3-VL-4B-Instruct @ ebb281ec70b05090aa6165b016eac8ec08e71b17 (~8.27 GiB, public, not baked into the image, cached on /runpod-volume/qwen-vl/models/). Pixel budget is the official longest_edge=1280*32*32 (not the processor default of 16.7M). transformers is a released pin (>=4.57.0), not git-main.
+
+## Docs
+
+- README.md — what you send/get, defaults, modes, license, FAQ
+- AGENTS.md — constraints for automated changes
+- openapi.yaml — job input / output schema
+- NOTICE — MIT vs Apache-2.0 for code and weights
+- examples/SOURCES.md — public-domain NASA sources for tiny_images.zip
+
+## Default job
+
+```json
+{
+  "input": {
+    "dataset_url": "https://example.com/images.zip",
+    "mode": "caption",
+    "length": "medium",
+    "language": "en"
+  }
+}
+```
+
+Default prompt: "Describe this image."
+refresh_worker is false so the model stays in memory. Do not accept tokens in the job input. Do not add Florence-2, Qwen2.5-VL, Gradio, or a chat server.
